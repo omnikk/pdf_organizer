@@ -20,10 +20,10 @@ class CertificateProcessorBalanced:
         # Проверяем доступность CUDA
         import torch
         if torch.cuda.is_available():
-            print(f"🚀 Используется GPU: {torch.cuda.get_device_name(0)}")
+            print(f"[START] Используется GPU: {torch.cuda.get_device_name(0)}")
             self.reader = easyocr.Reader(['ru'], gpu=True)
         else:
-            print("💻 Используется CPU (GPU недоступен)")
+            print("[CPU] Используется CPU (GPU недоступен)")
             self.reader = easyocr.Reader(['ru'], gpu=False)
             
         self.base_dir = Path.cwd()
@@ -136,7 +136,7 @@ class CertificateProcessorBalanced:
                     
                     # Логируем какой метод сработал лучше
                     if len(page_texts) > 1:
-                        print(f"    🔧 Лучший метод: {best_method} ({len(best_text)} символов)")
+                        print(f"    [FIX] Лучший метод: {best_method} ({len(best_text)} символов)")
             
             ocr_time = time.time() - ocr_start
             total_time = time.time() - start_time
@@ -153,7 +153,7 @@ class CertificateProcessorBalanced:
             return all_text
             
         except Exception as e:
-            print(f"❌ Ошибка при обработке {pdf_path}: {e}")
+            print(f"[ERROR] Ошибка при обработке {pdf_path}: {e}")
             return ""
     
     def extract_fio(self, text):
@@ -415,7 +415,7 @@ class CertificateProcessorBalanced:
     
     def process_single_pdf(self, pdf_path, file_number, total_files):
         """Обрабатывает один PDF файл"""
-        print(f"\n📄 Файл {file_number}/{total_files}: {pdf_path.name}")
+        print(f"\n[PDF] Файл {file_number}/{total_files}: {pdf_path.name}")
         
         file_start_time = time.time()
         
@@ -423,7 +423,7 @@ class CertificateProcessorBalanced:
         text = self.extract_text_from_pdf_balanced(pdf_path)
         
         if not text:
-            print(f"❌ Не удалось извлечь текст")
+            print(f"[ERROR] Не удалось извлечь текст")
             return False
         
         # Создаем файл отладки с распознанным текстом
@@ -440,15 +440,15 @@ class CertificateProcessorBalanced:
         
         # Показываем время обработки файла
         file_time = time.time() - file_start_time
-        print(f"⏱️  Время: {file_time:.1f}с | Текст: {len(text)} символов")
+        print(f"[TIME]  Время: {file_time:.1f}с | Текст: {len(text)} символов")
         
         # Краткий вывод результата
-        print(f"👤 ФИО: {fio[:30] + '...' if fio and len(fio) > 30 else fio or 'НЕ НАЙДЕНО'}")
-        print(f"🎓 Программа: {program_name[:40] + '...' if program_name and len(program_name) > 40 else program_name or 'НЕ НАЙДЕНО'}")
+        print(f"[USER] ФИО: {fio[:30] + '...' if fio and len(fio) > 30 else fio or 'НЕ НАЙДЕНО'}")
+        print(f"[CERT] Программа: {program_name[:40] + '...' if program_name and len(program_name) > 40 else program_name or 'НЕ НАЙДЕНО'}")
         
         # Проверяем обязательные поля
         if not fio or not program_name:
-            print(f"❌ Обработка неудачна")
+            print(f"[ERROR] Обработка неудачна")
             shutil.copy2(pdf_path, self.unknown_dir / pdf_path.name)
             
             self.csv_data.append({
@@ -487,7 +487,7 @@ class CertificateProcessorBalanced:
             'Путь к файлу': str(new_path)
         })
         
-        print(f"✅ Успешно обработан")
+        print(f"[OK] Успешно обработан")
         return True
     
     def show_timing_stats(self):
@@ -502,7 +502,7 @@ class CertificateProcessorBalanced:
         avg_total = df['total_time'].mean()
         avg_text_len = df['text_length'].mean()
         
-        print(f"\n⏱️  СТАТИСТИКА ВРЕМЕНИ:")
+        print(f"\n[TIME]  СТАТИСТИКА ВРЕМЕНИ:")
         print(f"   PDF конвертация: {avg_pdf:.1f} сек/файл")
         print(f"   OCR обработка: {avg_ocr:.1f} сек/файл") 
         print(f"   Общее время: {avg_total:.1f} сек/файл")
@@ -517,15 +517,15 @@ class CertificateProcessorBalanced:
     def process_all_pdfs(self):
         """Обрабатывает все PDF файлы в папке input"""
         if not self.input_dir.exists():
-            print(f"❌ Папка {self.input_dir} не найдена!")
+            print(f"[ERROR] Папка {self.input_dir} не найдена!")
             return
         
         pdf_files = list(self.input_dir.glob("*.pdf"))
         if not pdf_files:
-            print("❌ PDF файлы не найдены в папке input!")
+            print("[ERROR] PDF файлы не найдены в папке input!")
             return
         
-        print(f"🎯 Найдено {len(pdf_files)} PDF файлов")
+        print(f"[TARGET] Найдено {len(pdf_files)} PDF файлов")
         print("="*60)
         
         start_time = time.time()
@@ -542,22 +542,22 @@ class CertificateProcessorBalanced:
                 estimated_total = avg_time * len(pdf_files)
                 remaining = estimated_total - elapsed
                 
-                print(f"\n📊 ПРОГРЕСС: {i}/{len(pdf_files)} файлов")
-                print(f"   ✅ Успешно: {successful}/{i} ({successful/i*100:.1f}%)")
-                print(f"   ⏱️  Прошло: {elapsed/60:.1f} мин")
-                print(f"   🔮 Осталось: {remaining/60:.1f} мин")
-                print(f"   ⚡ Скорость: {avg_time:.1f} сек/файл")
+                print(f"\n[STATS] ПРОГРЕСС: {i}/{len(pdf_files)} файлов")
+                print(f"   [OK] Успешно: {successful}/{i} ({successful/i*100:.1f}%)")
+                print(f"   [TIME]  Прошло: {elapsed/60:.1f} мин")
+                print(f"   Осталось: {remaining/60:.1f} мин")
+                print(f"   [SPEED] Скорость: {avg_time:.1f} сек/файл")
         
         total_time = time.time() - start_time
         
-        print(f"\n🎉 ОБРАБОТКА ЗАВЕРШЕНА!")
-        print(f"✅ Успешно обработано: {successful} из {len(pdf_files)} файлов ({successful/len(pdf_files)*100:.1f}%)")
-        print(f"⏱️  Общее время: {total_time/60:.1f} минут")
-        print(f"⚡ Средняя скорость: {total_time/len(pdf_files):.1f} сек/файл")
+        print(f"\n[SUCCESS] ОБРАБОТКА ЗАВЕРШЕНА!")
+        print(f"[OK] Успешно обработано: {successful} из {len(pdf_files)} файлов ({successful/len(pdf_files)*100:.1f}%)")
+        print(f"[TIME]  Общее время: {total_time/60:.1f} минут")
+        print(f"[SPEED] Средняя скорость: {total_time/len(pdf_files):.1f} сек/файл")
         
         if successful < len(pdf_files):
-            print(f"❌ Неудачных файлов: {len(pdf_files) - successful}")
-            print(f"📁 Проблемные файлы находятся в папке: Неопознанные")
+            print(f"[ERROR] Неудачных файлов: {len(pdf_files) - successful}")
+            print(f"[FOLDER] Проблемные файлы находятся в папке: Неопознанные")
         
         # Показываем детальную статистику времени
         self.show_timing_stats()
@@ -568,13 +568,13 @@ class CertificateProcessorBalanced:
     def save_csv(self):
         """Сохраняет данные в CSV файл"""
         if not self.csv_data:
-            print("⚠️  Нет данных для сохранения в CSV")
+            print("[WARNING]  Нет данных для сохранения в CSV")
             return
         
         df = pd.DataFrame(self.csv_data)
         csv_path = self.debug_dir / "table.csv"
         df.to_csv(csv_path, index=False, encoding='utf-8-sig')
-        print(f"💾 Данные сохранены в {csv_path}")
+        print(f"[SAVE] Данные сохранены в {csv_path}")
 
 def main():
     

@@ -479,7 +479,7 @@ class CompleteFIOFixer:
         pdf_files = list(directory.glob("*.pdf"))
         renamed_count = 0
         
-        print(f"📁 Папка: {directory.name}")
+        print(f"[FOLDER] Папка: {directory.name}")
         print(f"   Найдено PDF файлов: {len(pdf_files)}")
         
         for pdf_file in pdf_files:
@@ -507,7 +507,7 @@ class CompleteFIOFixer:
                         renamed_count += 1
                         self.stats['renamed_files'] += 1
                         
-                        print(f"   ✅ {original_name} -> {safe_name}")
+                        print(f"   [OK] {original_name} -> {safe_name}")
                         
                         self.report['renamed_files'].append({
                             'directory': str(directory.relative_to(self.base_path)),
@@ -516,12 +516,12 @@ class CompleteFIOFixer:
                             'full_path': str(new_path)
                         })
                 else:
-                    print(f"   ⚪ {original_name} (без изменений)")
+                    print(f" {original_name} (без изменений)")
                     
             except Exception as e:
                 self.stats['errors'] += 1
                 error_msg = f"Ошибка с файлом {pdf_file.name}: {str(e)}"
-                print(f"   ❌ {error_msg}")
+                print(f"   [ERROR] {error_msg}")
                 self.report['errors'].append(error_msg)
         
         return len(pdf_files), renamed_count
@@ -529,18 +529,18 @@ class CompleteFIOFixer:
     def run_complete_processing(self, use_api=True):
         """Запуск полной обработки с патчем"""
         if not self.base_path.exists():
-            print(f"❌ Папка '{self.base_path}' не найдена!")
+            print(f"[ERROR] Папка '{self.base_path}' не найдена!")
             return
         
-        print(f"📂 Базовая папка: {self.base_path}")
-        print(f"👥 Определение пола по фамилии: ВКЛ")
-        print(f"🌐 API: {'Включено' if use_api else 'Отключено'}")
+        print(f"[DIR] Базовая папка: {self.base_path}")
+        print(f"[USERS] Определение пола по фамилии: ВКЛ")
+        print(f"[API] API: {'Включено' if use_api else 'Отключено'}")
         
         if use_api:
             if self.check_internet_connection():
-                print("✅ Интернет: OK")
+                print("[OK] Интернет: OK")
             else:
-                print("❌ Интернет недоступен, API отключено")
+                print("[ERROR] Интернет недоступен, API отключено")
                 use_api = False
         
         print("="*60)
@@ -551,18 +551,18 @@ class CompleteFIOFixer:
         event_dirs = [d for d in self.base_path.iterdir() 
                      if d.is_dir() and d.name != "Неопознанные"]
         
-        print(f"📋 Найдено папок с мероприятиями: {len(event_dirs)}")
+        print(f"[LIST] Найдено папок с мероприятиями: {len(event_dirs)}")
         print()
         
         total_files = 0
         total_renamed = 0
         
         for i, event_dir in enumerate(event_dirs, 1):
-            print(f"🎯 [{i}/{len(event_dirs)}] Обработка...")
+            print(f"[TARGET] [{i}/{len(event_dirs)}] Обработка...")
             files_count, renamed_count = self.process_directory(event_dir, use_api)
             total_files += files_count
             total_renamed += renamed_count
-            print(f"   📊 Результат: {renamed_count} из {files_count} файлов переименованы")
+            print(f"   [STATS] Результат: {renamed_count} из {files_count} файлов переименованы")
             print()
             
             if use_api and i < len(event_dirs):
@@ -571,29 +571,29 @@ class CompleteFIOFixer:
         # Обрабатываем "Неопознанные"
         unknown_dir = self.base_path / "Неопознанные"
         if unknown_dir.exists():
-            print(f"🔍 Обработка папки 'Неопознанные'")
+            print(f"[CHECK] Обработка папки 'Неопознанные'")
             files_count, renamed_count = self.process_directory(unknown_dir, use_api)
             total_files += files_count
             total_renamed += renamed_count
-            print(f"   📊 Результат: {renamed_count} из {files_count} файлов переименованы")
+            print(f"   [STATS] Результат: {renamed_count} из {files_count} файлов переименованы")
         
         # Итоги
         elapsed_time = time.time() - start_time
         
         print("="*60)
-        print(f"🏆 ПОЛНАЯ ОБРАБОТКА С ПАТЧЕМ ЗАВЕРШЕНА!")
-        print(f"⏱️  Время: {elapsed_time/60:.1f} минут")
-        print(f"📄 Всего файлов: {total_files}")
-        print(f"✅ Переименовано: {total_renamed}")
-        print(f"🌐 API запросов: {self.stats['api_calls']}")
-        print(f"🔧 API исправлений: {self.stats['api_fixes']}")
-        print(f"🎯 Прямых исправлений: {self.stats['direct_fixes']}")
-        print(f"🧩 Амбивалентных исправлений: {self.stats['ambiguous_fixes']}")
-        print(f"🔤 OCR исправлений: {self.stats['ocr_fixes']}")
-        print(f"📝 Исправлений падежа: {self.stats['case_fixes']}")
+        print(f"[FINISH] ПОЛНАЯ ОБРАБОТКА С ПАТЧЕМ ЗАВЕРШЕНА!")
+        print(f"[TIME]  Время: {elapsed_time/60:.1f} минут")
+        print(f"[PDF] Всего файлов: {total_files}")
+        print(f"[OK] Переименовано: {total_renamed}")
+        print(f"[API] API запросов: {self.stats['api_calls']}")
+        print(f"[FIX] API исправлений: {self.stats['api_fixes']}")
+        print(f"[TARGET] Прямых исправлений: {self.stats['direct_fixes']}")
+        print(f"Амбивалентных исправлений: {self.stats['ambiguous_fixes']}")
+        print(f"OCR исправлений: {self.stats['ocr_fixes']}")
+        print(f"Исправлений падежа: {self.stats['case_fixes']}")
         
         if self.stats['errors'] > 0:
-            print(f"❌ Ошибок: {self.stats['errors']}")
+            print(f"[ERROR] Ошибок: {self.stats['errors']}")
         
         # Сохраняем отчет
         self.save_report()
@@ -610,10 +610,10 @@ class CompleteFIOFixer:
             with open(report_file, 'w', encoding='utf-8') as f:
                 json.dump(self.report, f, ensure_ascii=False, indent=2)
             
-            print(f"📊 Отчет сохранен: {report_file.name}")
+            print(f"[STATS] Отчет сохранен: {report_file.name}")
                 
         except Exception as e:
-            print(f"⚠️  Ошибка сохранения отчета: {e}")
+            print(f"[WARNING]  Ошибка сохранения отчета: {e}")
 
 def main():
     

@@ -122,7 +122,7 @@ class FolderMerger:
     
     def show_group_info(self, group, group_number):
         """Показывает информацию о группе папок"""
-        print(f"\n📁 ГРУППА {group_number}:")
+        print(f"\n[FOLDER] ГРУППА {group_number}:")
         print("=" * 50)
         
         total_files = 0
@@ -131,8 +131,8 @@ class FolderMerger:
             total_files += file_count
             print(f"  {i}. {folder.name} ({file_count} файлов)")
         
-        print(f"\n📊 Всего файлов в группе: {total_files}")
-        print(f"📂 Количество папок: {len(group)}")
+        print(f"\n[STATS] Всего файлов в группе: {total_files}")
+        print(f"[DIR] Количество папок: {len(group)}")
         
         return total_files
     
@@ -140,7 +140,7 @@ class FolderMerger:
         """Позволяет пользователю выбрать название для группы"""
         suggestions = self.suggest_group_names(group)
         
-        print(f"\n💡 Предлагаемые названия:")
+        print(f"\n[TIP] Предлагаемые названия:")
         for i, suggestion in enumerate(suggestions, 1):
             print(f"  {i}. {suggestion}")
         
@@ -159,7 +159,7 @@ class FolderMerger:
                     if custom_name:
                         return custom_name
                     else:
-                        print("❌ Название не может быть пустым!")
+                        print("[ERROR] Название не может быть пустым!")
                         continue
                 
                 else:
@@ -167,11 +167,11 @@ class FolderMerger:
                     if 0 <= choice_idx < len(suggestions):
                         return suggestions[choice_idx]
                     else:
-                        print(f"❌ Выберите число от 1 до {len(suggestions) + 2}")
+                        print(f"[ERROR] Выберите число от 1 до {len(suggestions) + 2}")
                         continue
                         
             except ValueError:
-                print(f"❌ Введите число от 1 до {len(suggestions) + 2}")
+                print(f"[ERROR] Введите число от 1 до {len(suggestions) + 2}")
                 continue
     
     def merge_folders(self, group, new_name):
@@ -208,17 +208,17 @@ class FolderMerger:
             # Удаляем пустую папку
             try:
                 folder.rmdir()
-                print(f"  🗑️  Удалена папка: {folder.name}")
+                print(f"  [DELETE]  Удалена папка: {folder.name}")
             except OSError:
-                print(f"  ⚠️  Не удалось удалить папку: {folder.name} (возможно, не пустая)")
+                print(f"  [WARNING]  Не удалось удалить папку: {folder.name} (возможно, не пустая)")
         
-        print(f"  ✅ Перемещено {total_moved} файлов в папку: {safe_name}")
+        print(f"  [OK] Перемещено {total_moved} файлов в папку: {safe_name}")
         return total_moved
     
     def process_folder_merging(self):
         """Основной процесс объединения папок"""
         if not self.certificates_dir.exists():
-            print("❌ Папка 'сертификаты' не найдена!")
+            print("[ERROR] Папка 'сертификаты' не найдена!")
             return
         
         # Получаем все папки с программами (кроме "Неопознанные")
@@ -226,10 +226,10 @@ class FolderMerger:
                           if d.is_dir() and d.name != "Неопознанные"]
         
         if len(program_folders) < 2:
-            print("📁 Недостаточно папок для объединения!")
+            print("[FOLDER] Недостаточно папок для объединения!")
             return
         
-        print(f"🔍 Найдено {len(program_folders)} папок с программами")
+        print(f"[CHECK] Найдено {len(program_folders)} папок с программами")
         
         # Группируем похожие папки
         groups = self.group_similar_folders(program_folders)
@@ -238,10 +238,10 @@ class FolderMerger:
         groups_to_merge = [group for group in groups if len(group) > 1]
         
         if not groups_to_merge:
-            print("🎉 Все папки уже уникальны, объединение не требуется!")
+            print("[SUCCESS] Все папки уже уникальны, объединение не требуется!")
             return
         
-        print(f"\n📊 Найдено {len(groups_to_merge)} групп для возможного объединения:")
+        print(f"\n[STATS] Найдено {len(groups_to_merge)} групп для возможного объединения:")
         
         # Показываем информацию о каждой группе
         merging_plan = []
@@ -254,7 +254,7 @@ class FolderMerger:
             
             if chosen_name:
                 merging_plan.append((group, chosen_name))
-                print(f"✅ Группа {i} будет объединена в: '{chosen_name}'")
+                print(f"[OK] Группа {i} будет объединена в: '{chosen_name}'")
             else:
                 print(f"⏭️  Группа {i} пропущена")
         
@@ -265,17 +265,17 @@ class FolderMerger:
         # Подтверждение операции
         
         # Выполняем объединение
-        print(f"\n🔄 Начинаем объединение...")
+        print(f"\n[PROCESS] Начинаем объединение...")
         
         total_merged_files = 0
         for group, new_name in merging_plan:
-            print(f"\n📁 Объединяем группу в: '{new_name}'")
+            print(f"\n[FOLDER] Объединяем группу в: '{new_name}'")
             moved_files = self.merge_folders(group, new_name)
             total_merged_files += moved_files
         
-        print(f"\n🎉 ОБЪЕДИНЕНИЕ ЗАВЕРШЕНО!")
-        print(f"📁 Объединено групп: {len(merging_plan)}")
-        print(f"📄 Перемещено файлов: {total_merged_files}")
+        print(f"\n[SUCCESS] ОБЪЕДИНЕНИЕ ЗАВЕРШЕНО!")
+        print(f"[FOLDER] Объединено групп: {len(merging_plan)}")
+        print(f"[PDF] Перемещено файлов: {total_merged_files}")
         
         # Показываем финальное состояние
         self.show_final_state()
@@ -285,7 +285,7 @@ class FolderMerger:
         program_folders = [d for d in self.certificates_dir.iterdir() 
                           if d.is_dir() and d.name != "Неопознанные"]
         
-        print(f"\n📂 ФИНАЛЬНОЕ СОСТОЯНИЕ ({len(program_folders)} папок):")
+        print(f"\n[DIR] ФИНАЛЬНОЕ СОСТОЯНИЕ ({len(program_folders)} папок):")
         print("=" * 60)
         
         for i, folder in enumerate(program_folders, 1):
@@ -295,12 +295,14 @@ class FolderMerger:
 def main():
     merger = FolderMerger()
     
-    print("🔗 ИНТЕРАКТИВНОЕ ОБЪЕДИНЕНИЕ ПОХОЖИХ ПАПОК")
+    print("[MERGE] АВТОМАТИЧЕСКОЕ ОБЪЕДИНЕНИЕ ПОХОЖИХ ПАПОК")
     print("=" * 50)
-    print("Этот скрипт поможет объединить похожие папки с программами.")
-    print("Вы сможете выбрать названия для объединенных папок.\n")
+    print("Запущено через GUI - автоматическая обработка...")
     
-    merger.process_folder_merging()
+    try:
+        merger.process_folder_merging()
+    except Exception as e:
+        print(f"[ERROR] Ошибка объединения: {e}")
 
 if __name__ == "__main__":
     main()
