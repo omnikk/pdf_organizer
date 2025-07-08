@@ -7,7 +7,7 @@
 
 def test_imports():
     """Проверяет все необходимые библиотеки"""
-    print("🧪 ТЕСТ УСТАНОВКИ БИБЛИОТЕК")
+    print(" ТЕСТ УСТАНОВКИ БИБЛИОТЕК")
     print("=" * 40)
     
     tests = [
@@ -33,20 +33,20 @@ def test_imports():
     for name, import_code in tests:
         try:
             exec(import_code)
-            print(f"✅ {name}")
+            print(f"УСПЕХ {name}")
             success_count += 1
         except ImportError as e:
-            print(f"❌ {name}: {e}")
+            print(f"ОШИБКА {name}: {e}")
         except Exception as e:
-            print(f"⚠️  {name}: {e}")
+            print(f"ВНИМАНИЕ  {name}: {e}")
     
     print("\n" + "=" * 40)
-    print(f"📊 Результат: {success_count}/{len(tests)} библиотек установлено")
+    print(f" Результат: {success_count}/{len(tests)} библиотек установлено")
     
     if success_count == len(tests):
-        print("🎉 ВСЕ БИБЛИОТЕКИ УСТАНОВЛЕНЫ УСПЕШНО!")
+        print(" ВСЕ БИБЛИОТЕКИ УСТАНОВЛЕНЫ УСПЕШНО!")
     else:
-        print("❌ Не все библиотеки установлены")
+        print(" Не все библиотеки установлены")
         return False
     
     return True
@@ -59,7 +59,7 @@ def test_poppler():
     try:
         from pdf2image import convert_from_path
         # Попробуем создать dummy вызов (он упадет, но это нормально)
-        print("✅ pdf2image импортируется")
+        print(" pdf2image импортируется")
         
         # Проверяем наличие poppler в PATH
         import subprocess
@@ -69,22 +69,22 @@ def test_poppler():
             result = subprocess.run(['pdftoppm', '-h'], 
                                   capture_output=True, text=True, timeout=5)
             if result.returncode == 0 or 'pdftoppm' in result.stderr:
-                print("✅ Poppler найден в PATH")
+                print(" Poppler найден в PATH")
                 return True
             else:
-                print("❌ Poppler не найден в PATH")
+                print(" Poppler не найден в PATH")
                 return False
         except (subprocess.TimeoutExpired, FileNotFoundError):
-            print("❌ Poppler не установлен или не в PATH")
+            print(" Poppler не установлен или не в PATH")
             return False
             
     except ImportError:
-        print("❌ pdf2image не установлен")
+        print(" pdf2image не установлен")
         return False
 
 def test_gpu():
     """Проверяет доступность GPU"""
-    print("\n🚀 ТЕСТ GPU")
+    print("\n ТЕСТ GPU")
     print("=" * 40)
     
     try:
@@ -92,12 +92,12 @@ def test_gpu():
         
         if torch.cuda.is_available():
             gpu_name = torch.cuda.get_device_name(0)
-            print(f"✅ CUDA доступна: {gpu_name}")
-            print(f"📊 Видеопамять: {torch.cuda.get_device_properties(0).total_memory // 1024**3} GB")
+            print(f" CUDA доступна: {gpu_name}")
+            print(f" Видеопамять: {torch.cuda.get_device_properties(0).total_memory // 1024**3} GB")
             return True
         else:
-            print("⚠️  CUDA недоступна, будет использоваться CPU")
-            print("💡 Для ускорения установите CUDA: https://pytorch.org/get-started/locally/")
+            print("  CUDA недоступна, будет использоваться CPU")
+            print(" Для ускорения установите CUDA: https://pytorch.org/get-started/locally/")
             return False
             
     except Exception as e:
@@ -106,26 +106,25 @@ def test_gpu():
 
 def test_easyocr():
     """Проверяет EasyOCR"""
-    print("\n👁️  ТЕСТ EASYOCR")
+    print("\n  ТЕСТ EASYOCR")
     print("=" * 40)
     
     try:
         import easyocr
-        print("✅ EasyOCR импортируется")
+        print(" EasyOCR импортируется")
         
-        # Попробуем создать reader (это может занять время при первом запуске)
-        print("🔄 Инициализация EasyOCR...")
+        print(" Инициализация EasyOCR...")
         reader = easyocr.Reader(['ru'], gpu=False, verbose=False)
-        print("✅ EasyOCR инициализирован успешно")
+        print(" EasyOCR инициализирован успешно")
         return True
         
     except Exception as e:
-        print(f"❌ Ошибка EasyOCR: {e}")
+        print(f" Ошибка EasyOCR: {e}")
         return False
 
 def main():
     """Запуск всех тестов"""
-    print("🔧 ПРОВЕРКА ГОТОВНОСТИ СИСТЕМЫ")
+    print(" ПРОВЕРКА ГОТОВНОСТИ СИСТЕМЫ")
     print("Для обработки PDF сертификатов")
     print("=" * 50)
     
@@ -138,27 +137,31 @@ def main():
     # Тест Poppler
     if not test_poppler():
         all_good = False
-        print("\n💡 КАК УСТАНОВИТЬ POPPLER:")
+        print("\n КАК УСТАНОВИТЬ POPPLER:")
         print("1. Скачайте: https://github.com/oschwartz10612/poppler-windows/releases/latest")
         print("2. Распакуйте в C:\\poppler\\")
         print("3. Добавьте в PATH: C:\\poppler\\Library\\bin")
         print("4. Перезапустите командную строку")
     
-    # Тест GPU (необязательный)
+    # Тест GPU 
     test_gpu()
     
-    # Тест EasyOCR (может занять время)
-    print("\n⚠️  Следующий тест может занять несколько минут при первом запуске...")
+    # Тест EasyOCR 
+    print("\n  Следующий тест может занять несколько минут при первом запуске...")
     input("Нажмите Enter для продолжения или Ctrl+C для выхода...")
     test_easyocr()
     
     print("\n" + "=" * 50)
     if all_good:
-        print("🎉 СИСТЕМА ГОТОВА К РАБОТЕ!")
-        print("✅ Можете запускать скрипты обработки сертификатов")
+        print(" СИСТЕМА ГОТОВА К РАБОТЕ!")
+        print(" Можете запускать скрипты обработки сертификатов")
     else:
-        print("❌ СИСТЕМА НЕ ГОТОВА")
-        print("🔧 Исправьте ошибки выше и запустите тест снова")
+        print(" СИСТЕМА НЕ ГОТОВА")
+        print(" Исправьте ошибки выше и запустите тест снова")
+
+    print("\n" + "=" * 50)
+    print("Для выхода нажмите Enter...")
+    input()
 
 if __name__ == "__main__":
     main()
