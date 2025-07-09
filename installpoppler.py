@@ -16,7 +16,7 @@ def check_admin():
 
 def install_with_winget():
     """Пытается установить через winget"""
-    print("🔄 Попытка установки через winget...")
+    print(" Попытка установки через winget...")
     
     try:
         result = subprocess.run(['winget', 'install', '--id=poppler.poppler'], 
@@ -104,7 +104,7 @@ def download_poppler():
 
 def add_to_path():
     """Добавляет Poppler в PATH"""
-    print("🔧 Добавление в PATH...")
+    print(" Добавление в PATH...")
     
     poppler_bin = Path("C:/poppler/Library/bin")
     
