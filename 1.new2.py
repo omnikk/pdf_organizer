@@ -21,10 +21,10 @@ class CertificateProcessorBalanced:
         import torch
         if torch.cuda.is_available():
             print(f"[START] Используется GPU: {torch.cuda.get_device_name(0)}")
-            self.reader = easyocr.Reader(['ru'], gpu=True)
+            self.reader = easyocr.Reader(['ru'], gpu=True, verbose=False)
         else:
             print("[CPU] Используется CPU (GPU недоступен)")
-            self.reader = easyocr.Reader(['ru'], gpu=False)
+            self.reader = easyocr.Reader(['ru'], gpu=False, verbose=False)
             
         self.base_dir = Path.cwd()
         self.input_dir = self.base_dir / "input"
